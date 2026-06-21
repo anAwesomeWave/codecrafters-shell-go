@@ -1,16 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 )
 
 func main() {
-	// TODO: Uncomment the code below to pass the first stage
-	fmt.Print("$ ")
+	s := bufio.NewScanner(os.Stdin)
 
-	var cmd string
+	for {
+		fmt.Print("$ ")
 
-	fmt.Scan(&cmd)
+		s.Scan()
 
-	fmt.Printf("%s: command not found", cmd)
+		cmd := s.Text()
+
+		fmt.Printf("%s: command not found\n", cmd)
+	}
 }
