@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/shell-starter-go/app/modules"
+	"github.com/codecrafters-io/shell-starter-go/app/modules/echo"
 	"github.com/codecrafters-io/shell-starter-go/app/modules/exit"
 )
 
@@ -14,10 +15,12 @@ var (
 
 func NewModules() *Modules {
 	exitMod := exit.NewExitModule()
+	echoMod := echo.NewEchoModule()
 
 	return &Modules{
 		handlers: map[string]modules.Module{
 			exitMod.HandlerName(): exitMod,
+			echoMod.HandlerName(): echoMod,
 		},
 	}
 }
