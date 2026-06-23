@@ -3,7 +3,7 @@ package exit
 import (
 	"os"
 
-	"github.com/codecrafters-io/shell-starter-go/app/modules"
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules"
 )
 
 func NewExitModule() *ExitModule {
@@ -26,4 +26,8 @@ func (e *ExitModule) GetResult() (string, error) {
 
 func (e *ExitModule) HandlerName() string {
 	return "exit"
+}
+
+func (e *ExitModule) Help() string {
+	return "exit is a shell builtin"
 }

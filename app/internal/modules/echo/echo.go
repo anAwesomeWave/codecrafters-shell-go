@@ -3,7 +3,7 @@ package echo
 import (
 	"strings"
 
-	"github.com/codecrafters-io/shell-starter-go/app/modules"
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules"
 )
 
 func NewEchoModule() *EchoModule {
@@ -26,4 +26,8 @@ func (e *EchoModule) GetResult() (string, error) {
 
 func (e *EchoModule) HandlerName() string {
 	return "echo"
+}
+
+func (e *EchoModule) Help() string {
+	return "echo is a shell builtin"
 }

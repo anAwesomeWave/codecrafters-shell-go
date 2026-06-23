@@ -1,27 +1,32 @@
 package main
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/codecrafters-io/shell-starter-go/app/modules"
-	"github.com/codecrafters-io/shell-starter-go/app/modules/echo"
-	"github.com/codecrafters-io/shell-starter-go/app/modules/exit"
-)
-
-var (
-	ErrModuleNotFound = errors.New("module not found")
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules"
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules/echo"
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules/exit"
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules/typemod"
 )
 
 func NewModules() *Modules {
 	exitMod := exit.NewExitModule()
 	echoMod := echo.NewEchoModule()
+	typeMod := typemod.NewTypeModule()
+
+	handlers := map[string]modules.Module{
+		exitMod.HandlerName(): exitMod,
+		echoMod.HandlerName(): echoMod,
+		typeMod.HandlerName(): typeMod,
+	}
+
+	descHandlers := make(map[string]modules.ModuleInfo)
+	for k, v := range handlers {
+		descHandlers[k] = v
+	}
+
+	typeMod.SetModules(descHandlers)
 
 	return &Modules{
-		handlers: map[string]modules.Module{
-			exitMod.HandlerName(): exitMod,
-			echoMod.HandlerName(): echoMod,
-		},
+		handlers: handlers,
 	}
 }
 
@@ -30,9 +35,5 @@ type Modules struct {
 }
 
 func (m *Modules) GetModule(modName string) (modules.Module, error) {
-	if mod, ok := m.handlers[modName]; ok {
-		return mod, nil
-	}
-
-	return nil, fmt.Errorf("module %s not found: %w", modName, ErrModuleNotFound)
+	return modules.GetModule(modName, m.handlers)
 }

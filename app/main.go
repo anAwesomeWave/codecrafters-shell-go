@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"errors"
+
+	"github.com/codecrafters-io/shell-starter-go/app/internal/modules"
 )
 
 func run(s *bufio.Scanner, handlers *Modules) {
@@ -33,7 +35,7 @@ func process(cmd string, handlers *Modules) (string, error) {
 
 	mod, err := handlers.GetModule(commandName)
 	if err != nil {
-		if errors.Is(err, ErrModuleNotFound) {
+		if errors.Is(err, modules.ErrModuleNotFound) {
 			return fmt.Sprintf("%s: command not found", cmd), nil
 		}
 
