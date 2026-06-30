@@ -4,13 +4,38 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
-	"github.com/codecrafters-io/shell-starter-go/app/internal/utils/slices"
+	my_slices "github.com/codecrafters-io/shell-starter-go/app/internal/utils/slices"
 )
 
 const (
 	EXEC_FILES_PERM = 0o111 // octal
 )
+
+var (
+	ErrExecNotFound = errors.New("exec not found")
+)
+
+func ExecLookup(execName string, paths []string) (string, error) {
+	for _, dir := range paths {
+		execs, err := ScanExecFiles(dir)
+		if err != nil {
+			return "", fmt.Errorf("couldn't scan dir %s: %w", dir, err)
+		}
+
+		if slices.Contains(my_slices.Map(execs, func(fullPath string) string {
+			pathParts := strings.Split(fullPath, "/")
+
+			return pathParts[len(pathParts)-1]
+		}), execName) {
+			return strings.TrimRight(dir, "/") + "/" + execName, nil
+		}
+	}
+
+	return "", fmt.Errorf("couldn't find exec %s: %w", execName, ErrExecNotFound)
+}
 
 func ScanExecFiles(path string) ([]string, error) {
 	execFiles, err := scanFiles(path, EXEC_FILES_PERM)
@@ -36,7 +61,7 @@ func scanFiles(path string, permFilters uint32) ([]string, error) {
 	}
 
 	if permFilters != 0 {
-		files, err = slices.FilterE(files, func(f os.DirEntry) (bool, error) {
+		files, err = my_slices.FilterE(files, func(f os.DirEntry) (bool, error) {
 			mode, err := f.Info()
 			if err != nil {
 				return false, fmt.Errorf("get file info: %w", err)
@@ -50,7 +75,7 @@ func scanFiles(path string, permFilters uint32) ([]string, error) {
 		}
 	}
 
-	return slices.Map(files, func(f os.DirEntry) string {
+	return my_slices.Map(files, func(f os.DirEntry) string {
 		return f.Name()
 	}), nil
 }

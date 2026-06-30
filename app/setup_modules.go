@@ -7,7 +7,7 @@ import (
 	"github.com/codecrafters-io/shell-starter-go/app/internal/modules/typemod"
 )
 
-func NewModules() *Modules {
+func SetupModules() *modules.Modules {
 	exitMod := exit.NewExitModule()
 	echoMod := echo.NewEchoModule()
 	typeMod := typemod.NewTypeModule()
@@ -25,15 +25,5 @@ func NewModules() *Modules {
 
 	typeMod.SetModules(descHandlers)
 
-	return &Modules{
-		handlers: handlers,
-	}
-}
-
-type Modules struct {
-	handlers map[string]modules.Module // handlerName -> handler
-}
-
-func (m *Modules) GetModule(modName string) (modules.Module, error) {
-	return modules.GetModule(modName, m.handlers)
+	return modules.NewModules(handlers)
 }

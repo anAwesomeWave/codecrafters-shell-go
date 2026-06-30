@@ -1,8 +1,8 @@
 package typemod
 
 import (
+	"errors"
 	"fmt"
-	"slices"
 	"strings"
 
 	dirscanner "github.com/codecrafters-io/shell-starter-go/app/internal/dir_scanner"
@@ -46,37 +46,16 @@ func (t *TypeModule) processSingleArg(arg string) (string, error) {
 		return mod.Help(), nil
 	}
 
-	path, found, err := t.processExecFile(arg)
+	path, err := dirscanner.ExecLookup(arg, envs.PathEnvProcess(envs.PATH_ENV))
 	if err != nil {
-		return "", err // todo: desc
-	}
-
-	if found {
-		return arg + " is " + path, nil
-	}
-
-	return fmt.Sprintf("%s: not found", arg), nil
-}
-
-func (t *TypeModule) processExecFile(arg string) (string, bool, error) {
-	dirs := envs.PathEnvProcess(envs.PATH_ENV)
-
-	for ind := range dirs {
-		execs, err := dirscanner.ScanExecFiles(dirs[ind])
-		if err != nil {
-			return "", false, err // todo: desc
+		if errors.Is(err, dirscanner.ErrExecNotFound) {
+			return fmt.Sprintf("%s: not found", arg), nil
 		}
 
-		if slices.Contains(my_slices.Map(execs, func(fullPath string) string {
-			pathParts := strings.Split(fullPath, "/")
-
-			return pathParts[len(pathParts)-1]
-		}), arg) { // todo: подумать тут
-			return strings.TrimRight(dirs[ind], "/") + "/" + arg, true, nil
-		}
+		return "", err
 	}
 
-	return "", false, nil
+	return arg + " is " + path, nil
 }
 
 func (t *TypeModule) GetResult() (string, error) {

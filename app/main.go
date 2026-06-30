@@ -4,14 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 
-	"errors"
-
-	"github.com/codecrafters-io/shell-starter-go/app/internal/modules"
+	"github.com/codecrafters-io/shell-starter-go/app/internal"
 )
 
-func run(s *bufio.Scanner, handlers *Modules) {
+func run(processor *internal.Processor, s *bufio.Scanner) {
 	for {
 		fmt.Print("$ ")
 
@@ -19,44 +16,20 @@ func run(s *bufio.Scanner, handlers *Modules) {
 
 		cmd := s.Text()
 
-		ans, err := process(cmd, handlers)
+		ans, err := processor.Process(cmd)
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(ans)
-
+		fmt.Print(ans)
 	}
 
 }
-
-func process(cmd string, handlers *Modules) (string, error) {
-	commandName := strings.Split(cmd, " ")[0]
-
-	mod, err := handlers.GetModule(commandName)
-	if err != nil {
-		if errors.Is(err, modules.ErrModuleNotFound) {
-			return fmt.Sprintf("%s: command not found", cmd), nil
-		}
-
-		return "", nil
-	}
-
-	if err := mod.Process(cmd); err != nil {
-		return "", fmt.Errorf("couldn't process mod=%s cmd=%s: %w", mod.HandlerName(), cmd, err)
-	}
-
-	ans, err := mod.GetResult()
-	if err != nil {
-		return "", fmt.Errorf("couldn't get result mod=%s cmd=%s: %w", mod.HandlerName(), cmd, err)
-	}
-
-	return ans, nil
-}
-
 func main() {
 	s := bufio.NewScanner(os.Stdin)
-	handlers := NewModules()
+	handlers := SetupModules()
 
-	run(s, handlers)
+	processor := internal.NewProcessor(handlers)
+
+	run(processor, s)
 }

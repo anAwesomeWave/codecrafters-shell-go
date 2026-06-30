@@ -27,8 +27,18 @@ type ModuleInfo interface {
 	Help() string
 }
 
-func GetModule(modName string, allMods map[string]Module) (Module, error) {
-	if mod, ok := allMods[modName]; ok {
+func NewModules(mods map[string]Module) *Modules {
+	return &Modules{
+		mods: mods,
+	}
+}
+
+type Modules struct {
+	mods map[string]Module // handlerName -> handler
+}
+
+func (m *Modules) GetModule(modName string) (Module, error) {
+	if mod, ok := m.mods[modName]; ok {
 		return mod, nil
 	}
 
